@@ -7,11 +7,11 @@ RAKE algorithm is used for .txt file to find most frequent phrases. The table of
 All outputs are saved in a directory:
 ../Output.
 The .pdf files are saved in:
-../Output/Output_<searched_phrase>_pdf
+../Output/Output_[searched_phrase]_pdf
 The .txt files are saved in:
-../Output/Output_<searched_phrase>_txt
+../Output/Output_[searched_phrase]_txt
 The key phrases are saved as:
-../Output/kw_<searched_phrase>.csv
+../Output/kw_[searched_phrase].csv
 
 # Getting started:
 
@@ -53,9 +53,13 @@ Soon there will be added year, author, keywords and other databases of papers.
 
 # TODO:
 -more databases of articles
+
 -search options as powerful as in data base
+
 -report on downloaded and parsed papers
+
 -cleaner keypharases
+
 -parameterisation of the keyphrases algorithm
 
 
