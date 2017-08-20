@@ -1,3 +1,5 @@
+# sysReviewer
+
 A tool to download and process the articles from the articles database (at the moment www.paperity.com, soon https://www.ncbi.nlm.nih.gov/pubmed/ and others).
 SysReviewer downloads available .pdf from the search results.
 The .pdfs are processed to .txt.
@@ -11,13 +13,16 @@ The .txt files are saved in:
 The key phrases are saved as:
 ../Output/kw_<searched_phrase>.csv
 
-Getting started:
+# Getting started:
+
 Download the SysReviewer repository from the github. Extract in your home folder. In the directory ./python run an example from the'Usage' section.
 
-Requirements:
+# Requirements:
+
 Python 2.7, nltk, csv, pdfminer, bs4, requests, urllib2
 
-Usage:
+# Usage:
+
 > python sysReview.py kwashiorkor
 
 
@@ -45,7 +50,8 @@ The key phrases are saved as:
 
 At the moment, only search for any of field is available. 
 Soon there will be added year, author, keywords and other databases of papers.
-TODO:
+
+# TODO:
 -more databases of articles
 -search options as powerful as in data base
 -report on downloaded and parsed papers
@@ -53,6 +59,6 @@ TODO:
 -parameterisation of the keyphrases algorithm
 
 
-Thanks for useful manuals to:
+# Thanks for useful manuals to:
 to add
 
