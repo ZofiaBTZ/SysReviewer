@@ -18,7 +18,7 @@ Requirements:
 Python 2.7, nltk, csv, pdfminer, bs4, requests, urllib2
 
 Usage:
-> python SysReviewer.py kwashiorkor
+> python sysReview.py kwashiorkor
 will download papers, which has kwashiorkor in any field. The output will be saved in:
 The .pdf files are saved in:
 ../Output/Output_kwashiorkor_pdf
@@ -28,7 +28,7 @@ The key phrases are saved as:
 ../Output/kw_kwashiorkor.csv
 
 
-> python SysReviewer.py "Malawi AND HIV AND DHS"
+> python SysReview.py "Malawi AND HIV AND DHS"
 will download the papers which have Malawi, HIV and DHS in any of the fields.
 The .pdf files are saved in:
 ../Output/Output_Malawi+AND+HIV+AND+DHS_pdf

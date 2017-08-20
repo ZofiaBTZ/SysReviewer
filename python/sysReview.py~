@@ -1,8 +1,0 @@
-import paperity2pdf
-import pdf2txt
-import txt2key_phrases
-
-query = sys.argv[1]
-parse(query)
-output_pdf = "../output" + query 
-convert("../output")
