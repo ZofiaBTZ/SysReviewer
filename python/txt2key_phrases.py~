@@ -1,0 +1,169 @@
+import sys
+import re
+import os
+import collections
+import csv
+import math
+import operator
+import glob
+import nltk
+import itertools
+from short_similarity_sujipal import similarity
+from sklearn.cluster import DBSCAN
+#from textblob import TextBlob as tb
+from nltk.stem import WordNetLemmatizer
+from nltk.stem.lancaster import LancasterStemmer
+#w = sys.argv[1] 
+lancaster_stemmer = LancasterStemmer()
+#a = lancaster_stemmer.stem(w)
+from nltk.corpus import wordnet as wn
+
+wordnet_lemmatizer = WordNetLemmatizer()
+#wordnet_lemmatizer.lemmatize("dogs")
+
+def remove_non_ascii(text):
+    text = re.sub(r'[\357\254\200]+', 'ff', text)
+    text = re.sub(r'[\357\254\201]+', 'fi', text)
+    text = re.sub(r'[\357\254\202]+', 'fl', text)
+    text = re.sub('fffi ', 'fi', text)
+    text = re.sub('fff ', 'f', text)
+    text = re.sub('fff', 'f', text)
+    text = re.sub('-\n','', text)
+    text = re.sub('[^0-9a-zA-Z]+', ' ', text)
+ #   text = re.sub(r'[^\x00-\x7F]+',' ', text) 
+    return(text)
+
+
+def tf(word, blob):
+    return blob.words.count(word) / len(blob.words)
+
+def n_containing(word, bloblist):
+    return sum(1 for blob in bloblist if word in blob.words)
+
+def idf(word, bloblist):
+    return math.log(len(bloblist) / (1 + n_containing(word, bloblist)))
+
+def tfidf(word, blob, bloblist):
+    return tf(word, blob) * idf(word, bloblist)
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+       
+
+
+import RAKE
+ro = RAKE.Rake("./Malawi_search_words/stopwords_long.txt")
+
+dir_files = sys.argv[2]
+glob_keywords_file = {}
+glob_files = set()
+glob_keyword = set()
+#print(glob_files)
+print("ten plik")
+i=0
+for f in glob.glob(dir_files + "/" + "*.txt"):
+    with open(f, 'r') as content_file:
+        content = content_file.read()
+    i = i+1
+    print i
+    content = remove_non_ascii(content) 
+    content = " ".join(content.split())
+    #content = re.sub('- ', '',content)
+    #content = re.sub(' -', '',content)
+    #content = re.sub('-', '',content)
+    mytext = " ".join(content.split())
+    # words = mytext.split()
+    #    stem_words = [wordnet_lemmatizer.lemmatize(x) for x in words]
+    #  stem2_words = [wordnet_lemmatizer.lemmatize(x,'v') for x in words]
+    #wordnet_lemmatizer.lemmatize("dogs")
+    # mytext = " ".join(words)
+    # change - into ""
+    # lemmatize all
+    keywords = ro.run(mytext)
+    print(f)
+    short_keywords = [k for (k,v) in keywords if len(k.split()) > 0 and v > 5 and len(k.split())<4]
+    #import pdb; pdb.set_trace()
+    paper = os.path.basename(f)
+    short_kw_dict = {(paper,k):v for (k,v) in keywords if len(k.split())>0  and v > 5 and len(k.split())<4}
+    #short_kw_list = {k:v for (k,v) in keywords if len(k) < 30 and v > 3}
+    #for (f,k),v in short_kw.iteritems():
+    glob_keyword |= set(short_keywords)
+    glob_files.add(os.path.basename(paper))
+    glob_keywords_file.update(short_kw_dict)
+
+
+print(len(glob_keyword))
+print(len(glob_files))
+list_zeros = [["" for n in xrange(len(glob_files)+3)] for _ in xrange(len(glob_keyword)+1)]
+for (y,f) in enumerate(glob_files):
+    list_zeros[0][y+2]=f
+    for (x,k) in enumerate(glob_keyword):
+        list_zeros[x+1][0]=k
+        if (f, k) in glob_keywords_file:
+            list_zeros[x+1][y+2] = glob_keywords_file[(f,k)] 
+#            print(glob_keywords_file[(f,k)])
+        else:
+            list_zeros[x+1][y+2] = 0
+
+
+#nltk.cluster.util.cosine_distance("HIV testing","HIV infection")
+            
+final_list = []
+final_keywords = []
+print("ten plik")
+for i in xrange(len(list_zeros)):
+    importance = sum(1 for x in list_zeros[i] if x > 0)
+    if importance > 6:
+        final_list.append(list_zeros[i])
+        final_keywords.append(list_zeros[i][0])
+        #w = csv.DictWriter( sys.stdout, fields )
+#for key,val in sorted(dw.items()):
+#    row = {'org': key}
+#    row.update(val)
+#    w.writerow(row)
+
+
+
+#table_keywords = [(k1,k2) for k1 in final_keywords for k2 in final_keywords] 
+#distance_matrix = [(k1,k2, similarity(k1,k2, True)) for (k1,k2) in table_keywords]
+#j=0
+#distance_matrix =  [[1000 for n in xrange(len(final_keywords))] for k in xrange(len(final_keywords))]
+#for i in xrange(1,len(final_keywords)):
+#    for j in xrange(i+1,len(final_keywords)-1):    
+#        # wn.path_similarity(mother, country)
+#        distance_matrix[i][j] = 1/(0.00001 + similarity(final_keywords[i], final_keywords[j], True))
+#        distance_matrix[j][i] = distance_matrix[i][j]#1/(0.00001 + similarity(final_keywords[i], final_keywords[j], True))
+#        #print(i)
+#        #print(j)
+#        #print(final_keywords[i])
+#        #print(final_keywords[j])
+#        #print(distance_matrix[i][j])
+#        #print(distance_matrix[j][i])
+#        #sorted_kw = sorted(short_kw.items(), key=operator.itemgetter(1), reverse=True)
+
+
+#db = DBSCAN(eps=3, min_samples=2, metric="precomputed")
+#y_db = db.fit_predict(distance_matrix)
+#print(len(y_db))
+##print(len(final_keywords))
+#for i in range(len(y_db)):
+#    final_list[i][1] = y_db[i]
+#   # print([final_keywords[i], y_db[i]])
+#    
+
+kw_file = sys.argv[1]
+
+with open(kw_file, 'w') as kw_output:
+    #for i in xrange(len(glob_files)):
+    #    kw_output.write(list[k])
+    #kw_output.write(short_kw)
+    w = csv.writer(kw_output)
+    w.writerows(final_list)
+ #   for 
+    
+###print()
