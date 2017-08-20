@@ -24,8 +24,6 @@ def process_page(my_url, output_dir):
     soup_all = BeautifulSoup(r.content, "html.parser")
     titles = soup_all.find_all("h4", {"class": "paper-list-title"})
     print("titles")
-    #print(titles[2])#('href')
-    #print("Titles")
     for title in titles:
         new_t = title.find("a").get("href")
         print(new_t)
@@ -70,6 +68,4 @@ def parse(query, pdf_dir):
 
 
     
-#query =  sys.argv[1] # "legionella"
 
-#parse(query)

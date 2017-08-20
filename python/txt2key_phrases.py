@@ -8,17 +8,6 @@ import operator
 import glob
 import nltk
 import itertools
-from sklearn.cluster import DBSCAN
-#from textblob import TextBlob as tb
-from nltk.stem import WordNetLemmatizer
-from nltk.stem.lancaster import LancasterStemmer
-#w = sys.argv[1] 
-lancaster_stemmer = LancasterStemmer()
-#a = lancaster_stemmer.stem(w)
-from nltk.corpus import wordnet as wn
-
-wordnet_lemmatizer = WordNetLemmatizer()
-#wordnet_lemmatizer.lemmatize("dogs")
 
 def remove_non_ascii(text):
     text = re.sub(r'[\357\254\200]+', 'ff', text)
