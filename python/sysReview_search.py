@@ -22,8 +22,12 @@ print args.keyW
 
 #https://www.ncbi.nlm.nih.gov/pmc/?term=(((Keiser,+Olivia%5BAuthor%5D)+AND+HIV%5BAbstract%5D)+AND+Malawi%5BAbstract%5D)+AND+(%222010%22%5BPublication+Date%5D+%3A+%222017%22%5BPublication+Date%5D)
 
-#that's not ready yet, needs matching parenthesis etc, but that's the idea how to build the query:
-query = "".join("https://www.ncbi.nlm.nih.gov/pmc/?term=", args.author, )
+# one needs to check if author was given etc. but if yes:
+url = "https://www.ncbi.nlm.nih.gov/pmc/?term="
+query = url +  args.author + "[author]" 
+print(query)
+#it would be run as:
+#python sysReview_search.py --author="Olivia Keiser"
 
 #try:
 #    os.makedirs("../../Output/")
