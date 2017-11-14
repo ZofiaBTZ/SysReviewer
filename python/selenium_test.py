@@ -36,6 +36,7 @@ def download_header_file(url, fname):
 
 
 def setFirefox(out_dir):
+    out_dir = "./test_folder"
     fp = webdriver.FirefoxProfile()
     fp.set_preference("browser.download.folderList", 2)
     fp.set_preference("browser.download.manager.showWhenStarting",False)
@@ -80,7 +81,7 @@ def process_page_jstor(my_url, driver):
         link.click()
         time.sleep(10)
         #download_header_file(url_paper, url_paper.split('/')[-1] )
-        driver.close()
+        driver.quit()
         
         # to change the fle name
 

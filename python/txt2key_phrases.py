@@ -91,10 +91,9 @@ def txt2keyphrases(txt_dir, kw_file):
  
     final_list = []
     final_keywords = []
-    print("Zosia")
     for n_row in xrange(len(list_zeros)):
         importance = sum(1 for x in list_zeros[n_row] if x > 0)
-        if importance > 6: #6
+        if importance > 6: #6 number of papers
             final_list.append(list_zeros[n_row])
             final_keywords.append(list_zeros[n_row][0])
 

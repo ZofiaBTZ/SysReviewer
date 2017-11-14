@@ -11,6 +11,7 @@ import errno
 # create list of dois to add entries into Zotero
 # e. prepare bibtex file
 def download_file(url, output):
+    # todo: check if the paper exists
     f = open(output, 'wb')
     webFile = urllib2.urlopen(url)
     f.write(webFile.read())
@@ -57,7 +58,7 @@ def parse(query, pdf_dir):
         
     process_page(q, pdf_dir)
     i = 1
-    while i<51:
+    while i<51: # todo - adjust number of pages based on number of found papers
         i = i + 1
         q_next = url_n + str(i) + url_end + query
         print(q_next)

@@ -93,6 +93,7 @@ def convert(pdf_dir, txt_dir, summary_file):
         # if f > last_file:    
         try:
             retvalue = convert_pdf_to_txt(f)
+            print(retvalue[1:6])
             retvalue = remove_non_ascii(retvalue)
             file_name =  os.path.basename(f)
             txt_name = file_name.replace(".pdf", ".txt")
@@ -102,7 +103,7 @@ def convert(pdf_dir, txt_dir, summary_file):
             with open(txt_path, "w+") as ff:
                 ff.write(retvalue)
         except:
-            print(f + "   not parsed")
+            print(f + "   not parsed") # add to summary
             continue            
         
         summary.write(f)
@@ -122,3 +123,4 @@ def convert(pdf_dir, txt_dir, summary_file):
 
     
 # check the title --- more points for word in the title. Don't look for words in Bibliography
+## titles from numbers to real titles
