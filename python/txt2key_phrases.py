@@ -91,6 +91,7 @@ def txt2keyphrases(txt_dir, kw_file):
  
     final_list = []
     final_keywords = []
+    freq_papers = int(math.sqrt(math.sqrt(n_file)))+1
     for n_row in xrange(len(list_zeros)):
         importance = sum(1 for x in list_zeros[n_row] if x > 0)
         if importance > 6: #6 number of papers

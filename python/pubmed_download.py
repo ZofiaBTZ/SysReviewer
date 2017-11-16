@@ -91,18 +91,38 @@ def parse_pubmed(query, pdf_dir):
     url_start = "https://www.ncbi.nlm.nih.gov/pubmed/?term="
     #"https://www.jstor.org/action/doBasicSearch?searchType=facetSearch&page="
     #url_end = "&sd=2010&ed=2015&Query=(Malawi)"
+    url = url_start + query
+    #process_page_pubmed(url)
     driver = setFirefox(pdf_dir)
     page = 0
-    while page < 20: #or till the last paper
-        #selenium click page 
-        q_next = url_start + str(i) + url_end #+ query
-        print(q_next)
+    while page < 2: #or till the last paper
+        #next_page = selenium click page 
+        driver.get(url)
+        r = cache2html(url)
+        soup_all = BeautifulSoup(r, "html.parser")
+        titles = soup_all.find_all("a", href=True, ref=True)
+        print("start_titles###########################")
+        print(titles)
+        print("end titles ######################")
+        link = driver.find_element_by_xpath("//a[@title = 'Next page of results']")
+        #link = driver.find_element_by_xpath("//input[@value='I accept, proceed to PDF']")
+        print(link)
+        url_new = link.click()
+        #       driver.implicitly_wait(10)
+        newPage = WebDriverWait(driver, 30).until(
+            ec.visibility_of_element_located((By.ID, 'calendar'))
+        )
+        print("new url ------------------------")
+        print(url_new)
+        print("end new url---------------------")
+        #q_next = url_start + str(i) + url_end #+ query
+        #print(q_next)
         #try:
-        process_page_jstor(q_next, driver)
+        #process_page_jstor(q_next, driver)
         #except Exception:
         #    print("cannot process the url ")
         #    exit
-        i = i + 1
+        page = page + 1
 
 
 #driver.get("http://www.jstor.org/stable/pdf/4147628.pdf")
@@ -112,6 +132,6 @@ def parse_pubmed(query, pdf_dir):
 #download_header_file("http://www.jstor.org/stable/pdf/3583410.pdf", "./test_jstor.pdf") 
 
 
-parse("", "../output_jstor/")
+#parse("", "../output_jstor/")
 
-parse_pubmed()
+parse_pubmed("Malawi", "../output_pubmed/")

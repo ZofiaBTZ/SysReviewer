@@ -42,13 +42,13 @@ def process_page(my_url, output_dir):
 
 def parse(query, pdf_dir):
     pap = "http://paperity.org"    
-    url = "http://paperity.org/search/?q="
+    #url = "http://paperity.org/search/?q="
     url_n = "http://paperity.org/search/"
-    url_end = "?q="
-    today = datetime.date.today()
-    q = url + query
-    html = urllib2.urlopen(q).read()
-    print(q)
+    #url_end = "?q="
+    #today = datetime.date.today()
+    #q = url + query
+    #html = urllib2.urlopen(q).read()
+    #print(q)
     
     try:
         os.makedirs(pdf_dir)
@@ -56,11 +56,11 @@ def parse(query, pdf_dir):
         if e.errno != errno.EEXIST:
             raise
         
-    process_page(q, pdf_dir)
-    i = 1
+    # process_page(q, pdf_dir)
+    i = 0
     while i<51: # todo - adjust number of pages based on number of found papers
         i = i + 1
-        q_next = url_n + str(i) + url_end + query
+        q_next = url_n + str(i) +  query
         print(q_next)
         try:
             process_page(q_next, pdf_dir)
