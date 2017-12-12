@@ -52,7 +52,7 @@ def txt2keyphrases(txt_dir, kw_file):
     glob_keywords_file = {}
     glob_files = set()
     glob_keyword = set()
-    freq =  6
+    freq =  5
     length = 4
     n_file=0
     for f in glob.glob(txt_dir + "/" + "*.txt"):
@@ -91,10 +91,10 @@ def txt2keyphrases(txt_dir, kw_file):
  
     final_list = []
     final_keywords = []
-    freq_papers = int(math.sqrt(math.sqrt(n_file)))+1
+    freq_papers = int(math.sqrt(math.sqrt(n_file)))+2
     for n_row in xrange(len(list_zeros)):
         importance = sum(1 for x in list_zeros[n_row] if x > 0)
-        if importance > 6: #6 number of papers
+        if importance > freq_papers: #6 number of papers
             final_list.append(list_zeros[n_row])
             final_keywords.append(list_zeros[n_row][0])
 
