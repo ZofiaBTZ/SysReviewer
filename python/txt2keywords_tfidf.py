@@ -28,7 +28,7 @@ import math
 CACHE_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'cache')
 
 
-#subset = 500
+subset = 500
 
 
 def remove_non_ascii(text):
@@ -98,8 +98,9 @@ def txt2tfidf(txt_dir, kw_out):
     #3: TF-IDF keywords for processed text
     print("=== 3. TF-IDF")
     document_frequencies = {}
-    document_count = subset#len(processed_pages)
-    for page in processed_pages[1:subset]:
+    document_count = len(processed_pages)
+    print(document_count)
+    for page in processed_pages[1:document_count]:
         page["tfidf_frequencies"] = tfidf.get_word_frequencies(page["text"])
         for word in page["tfidf_frequencies"]:
             document_frequencies.setdefault(word, 0)
@@ -107,7 +108,8 @@ def txt2tfidf(txt_dir, kw_out):
             #print(word)
 
     sortby = lambda x: x[1]["score"]
-    for page in processed_pages: # names page --> txt file
+    for page in processed_pages[1:document_count]: # names page --> txt file
+        print(type(page))
         for word in page["tfidf_frequencies"].items():
             word_frequency = word[1]["frequency"]
             #print word[0] + " " + str(word_frequency)
