@@ -5,7 +5,6 @@ import errno
 import subprocess
 import re
 import collections
-#import xlsxwriter
 import sys
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument, PDFNoOutlines
@@ -19,30 +18,29 @@ from cStringIO import StringIO
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-
+#Converts the PDF file to a TXT file
 def convert_pdf_to_txt(path):
-    rsrcmgr = PDFResourceManager()
-    retstr = StringIO()
+    rsrcmgr = PDFResourceManager()                                                  #Creates a PDF resource manager objects that stores shared resources.
+    retstr = StringIO()                                                             #Creates an object that reads and writes a string buffer
     codec = 'utf-8'
-    laparams = LAParams()
-    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+    laparams = LAParams()                                                           #Set parameters for the text analysis
+    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)         #Converts the text
     fp = file(path, 'rb')
-    interpreter = PDFPageInterpreter(rsrcmgr, device)
+    interpreter = PDFPageInterpreter(rsrcmgr, device)                               #Process the page content
     password = ""
     maxpages = 0
     caching = True
     pagenos=set()
-    for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password,caching=caching, check_extractable=True):
+    for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password,caching=caching, check_extractable=True):   #For all pages, extracts the text
         interpreter.process_page(page)
     fp.close()
     device.close()
-    str = retstr.getvalue()
+    str = retstr.getvalue()                                                         #Resets retstr otherwise gets copies
     retstr.close()
-    return str
+    return str                                                                      #Returns the text
 
-#add proper parsing of arguments
-# if ocr needed -- https://pythontips.com/2016/02/25/ocr-on-pdf-files-using-python/
 
+#Removes non ASCII characters
 def remove_non_ascii(text):
     text = re.sub(r'[\357\254\200]+', 'ff', text)
     text = re.sub(r'[\357\254\201]+', 'fi', text)
@@ -50,15 +48,14 @@ def remove_non_ascii(text):
     text = re.sub('fffi ', 'fi', text)
     text = re.sub('ff ', 'ff', text)
     text = re.sub('[^0-9a-zA-Z]+', ' ', text)
- #   text = re.sub(r'[^\x00-\x7F]+',' ', text) 
+    text = re.sub(r'[^\x00-\x7F]+',' ', text) 
     return(text)
 
-def get_toc(pdf_path):    #pdf structure of the file
+#Extracts the table of content from the pdf
+def get_toc(pdf_path):    
     infile = open(pdf_path, 'rb')
     parser = PDFParser(infile)
     document = PDFDocument(parser)
-
-    
     toc = list()
     try:
         for (level,title,dest,a,structelem) in document.get_outlines():
@@ -68,55 +65,47 @@ def get_toc(pdf_path):    #pdf structure of the file
         pass
     return toc
 
-# TODO: change input, not order dependent
-#   parser = argparse.ArgumentParser(description='Description of your program')
-#parser.add_argument('-f','--foo', help='Description for foo argument', required=True)
-#parser.add_argument('-b','--bar', help='Description for bar argument', required=True)
-#args = vars(parser.parse_args()) 
-
-###pdf_dir = sys.argv[1]
-###summary_file = txt_dir + "/summary.txt" #sys.argv[3]
-#last_file = '0'
-###txt_dir = sys.argv[2]
 
 def convert(pdf_dir, txt_dir, summary_file):
     summary = open(summary_file, "w")
-    try:
+    try:                                                                #Checks if the directory for txt outputs exists, otherwise creates it
         os.makedirs(txt_dir)
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
-     
-    #os.chdir(pdf_dir)
-    for f in glob.glob(pdf_dir + "/" + "*.pdf"):
+    for f in glob.glob(pdf_dir + "/" + "*.pdf"):                        #Loops over all the PDF files located in the PDF folder
         print(f)
-        # if f > last_file:    
-        try:
-            retvalue = convert_pdf_to_txt(f)
-            print(retvalue[1:6])
-            retvalue = remove_non_ascii(retvalue)
-            file_name =  os.path.basename(f)
-            txt_name = file_name.replace(".pdf", ".txt")
-            txt_path = txt_dir +"/"+ txt_name
-            print(txt_path)
-            print(os.getcwd())
-            with open(txt_path, "w+") as ff:
-                ff.write(retvalue)
-        except:
-            print(f + "   not parsed") # add to summary
-            continue            
-        
-        summary.write(f)
-    
-        toc = get_toc(f)
-        if toc == list():
-            toc = retvalue.split('.')[0]
-            #print(toc)
-        else:
-            toc = ' '.join(get_toc(f))
-            #print(toc)
-        summary.write(toc)
-        summary.write(" \n")
+
+        #Creates a TXT file with the same name as the PDF file
+        file_name = os.path.basename(f)
+        txt_name = file_name.replace(".pdf", ".txt")
+        txt_path = txt_dir +"/"+ txt_name
+        #Converts to TXT
+        if (os.path.isfile(txt_path)):                                  #Checks if the txt file already exists, if yes, then the conversion was alredy made
+            print ("Already converted")
+        else:      
+            try:                                                            
+                retvalue = convert_pdf_to_txt(f)                            #Converts the PDF file to txt
+                #print(retvalue[1:6])
+                retvalue = remove_non_ascii(retvalue)                       #Removes the non ASCII characters
+                #file_name =  os.path.basename(f)
+                #txt_name = file_name.replace(".pdf", ".txt")                #Creates a TXT file with the same name as the PDF file
+                #txt_path = txt_dir +"/"+ txt_name
+                #print(txt_path)
+                #print(os.getcwd())
+                with open(txt_path, "w+") as ff:                            #Writes the extracted text in the TXT file
+                    ff.write(retvalue)
+            except:
+                print(f + "   not parsed")                                  #add to summary
+                continue            
+            summary.write(f)
+            toc = get_toc(f)                                                #Process the table of content of the PDF file
+            if toc == list():                                               #If empty
+                toc = retvalue.split('.')[0]
+            else:                                                           #Else get the toc
+                toc = ' '.join(get_toc(f))
+            summary.write(toc)
+            summary.write(" \n")
     summary.close()
 
     
