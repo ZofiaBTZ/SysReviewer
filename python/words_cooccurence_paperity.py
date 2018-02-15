@@ -6,6 +6,8 @@ import requests
 import pandas as pd
 import time
 from words_cooccurence_downloaded import create_list
+import os
+import errno
 
 #todo - basic similarity, bags of words, bags of words combined with similarity --- to get synonyms
 # co-occurences - to group into contexts; acronyms
@@ -43,7 +45,14 @@ def pap2freq(my_url):
             return str_freq
     return((str_freq))
  
-def words_cooccurence_paperity_f(keywords_file):
+def words_cooccurence_paperity_f(keywords_file, output_name):
+
+    try:
+        os.makedirs(output_name + "/CSV/")
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
+        
     words, all = create_list(keywords_file)
     pap = "http://paperity.org/search/?q="
 
@@ -104,7 +113,7 @@ def words_cooccurence_paperity_f(keywords_file):
 
         
     df_freq = pd.DataFrame(freq_words)                              #Store this matrix to a CSV file
-    df_freq.to_csv("CSV_pap/frequencies.csv", sep=',')
+    df_freq.to_csv(output_name + "/CSV/frequencies_"+keywords_file[-17:-15]+"pap.csv", sep=',')
 
 
     for w1 in xrange(len(words)):
@@ -118,10 +127,10 @@ def words_cooccurence_paperity_f(keywords_file):
 
 
     df_sim = pd.DataFrame(sim12)
-    df_sim.to_csv("CSV_pap/AsymSim.csv", sep=',')
+    df_sim.to_csv(output_name + "/CSV/AsymSim_"+keywords_file[-17:-15]+"pap.csv", sep=',')
 
     df_Symsim = pd.DataFrame(symSim)
-    df_Symsim.to_csv("CSV_pap/SymSim.csv", sep=',')                                                         #Triangular matrix. If not, there is a problem!
+    df_Symsim.to_csv(output_name + "/CSV/SymSim_"+keywords_file[-17:-15]+"pap.csv", sep=',')                                                         #Triangular matrix. If not, there is a problem!
 
 
 
