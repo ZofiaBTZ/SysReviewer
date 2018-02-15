@@ -36,30 +36,31 @@ def remove_non_ascii(text):
     return(text)
 
 #Eliminates some unimportant keywords, similarly to what is done in txt2key_phrases.py (l.75)
-def merge_keywords(glob_files, glob_keyword, glob_keywords_file, importance):
-    print(len(glob_keyword))
-    print(glob_keyword)
-    raw_input("Press the <ENTER> key to continue...")
-    print(len(glob_files))
+def merge_keywords(glob_files, glob_keyword, glob_keywords_file, importance, processed_pages):
     list_zeros = [["" for n in xrange(len(glob_files)+3)] for _ in xrange(len(glob_keyword)+1)]
-    for (y,f) in enumerate(glob_files):
+    for (y,f) in enumerate(glob_files):                                     #y is index, f associated file name
         list_zeros[0][y+3]=f
-        for (x,k) in enumerate(glob_keyword):
+        for (x,k) in enumerate(glob_keyword):                               #x is index, k is associated keyword
             list_zeros[x+1][0]=k
-            if (f, k) in glob_keywords_file:
+            if (f, k) in glob_keywords_file:                                #If the word k is a keyword in file f
                 list_zeros[x+1][y+3] = glob_keywords_file[(f,k)] 
-            else:
-                list_zeros[x+1][y+3] = 0
+            else:                                                           #Else, it might not be a keyword, but might appear anyway
+                for page in processed_pages[1:len(processed_pages)]:
+                    if (page["url"] == f) and (k in page["text"]):
+                        list_zeros[x+1][y+3] = 1
+                        break
+                    else:
+                        list_zeros[x+1][y+3] = 0
+                #if k in processed_pages['text' if 'url' = f]
+                #add a value other than 0 for the cooccurrence calculation (1?)
+                #else it is not a keyword, nor is it appearing in that paper so we can set it to 0
+                #list_zeros[x+1][y+3] = 0
     final_list = []
     final_keywords = []
     for i in xrange(len(list_zeros)):
-        imp = sum(1 for x in list_zeros[i] if x > 0.03)             # to be adjusted based on number of papers and user-s preferences
-        if imp > importance:
-            final_list.append(list_zeros[i])
-            final_keywords.append(list_zeros[i][0])
-    print(len(final_keywords))
-    print(final_keywords)
-    raw_input("Press the <ENTER> key to continue...")
+        final_list.append(list_zeros[i])
+        final_keywords.append(list_zeros[i][0])
+
     return([final_list, final_keywords])
 
 
@@ -88,7 +89,7 @@ def txt2tfidf(txt_dir, kw_out):
         with open(f, 'r') as content_file:
             content = content_file.read()                           #Reads the files     
         processed_pages.append({"url": str(f), "text": remove_non_ascii(content)}) #Adds the name of the file to processed_pages, and the corresponding text from the TXT files
-           
+     
     #3: TF-IDF keywords for processed text
     print("=== 3. TF-IDF")
     document_frequencies = {}
@@ -98,8 +99,7 @@ def txt2tfidf(txt_dir, kw_out):
         for word in page["tfidf_frequencies"]:                                      #Calculates the frequency of the word in a document
             document_frequencies.setdefault(word, 0)
             document_frequencies[word] += 1                                         #To avoid zeros
-
-
+    
     sortby = lambda x: x[1]["score"]
     for page in processed_pages[1:document_count]:                                  # names page --> txt file
         for word in page["tfidf_frequencies"].items():
@@ -107,22 +107,22 @@ def txt2tfidf(txt_dir, kw_out):
             docs_with_word = document_frequencies[word[0]]
             word[1]["score"] = tfidf.calculate(word_frequency, document_count, docs_with_word)
 
+        threshold = 1./(math.sqrt(math.sqrt(document_count)))
         page["tfidf_results"] = sorted(page["tfidf_frequencies"].items(), key=sortby, reverse=True)
         #The word is considered a keyword if its frequency is higher than 0.08 (parameter adjustment, needs to be computed rather than set by hand)
-        short_keywords_tfidf = [k[0] for k in page["tfidf_results"] if k[1]["score"] > 0.08] 
+        short_keywords_tfidf = [k[0] for k in page["tfidf_results"] if k[1]["score"] > threshold]            #k[0] = word, k[1]["score"] = score
         paper = page["url"]
-    	short_kw_dict_tfidf = {(paper,k[0]):k[1]["score"] for k in page["tfidf_results"] if k[1]["score"] > 0.08} 
+    	short_kw_dict_tfidf = {(paper,k[0]):k[1]["score"] for k in page["tfidf_results"] if k[1]["score"] > threshold} 
     	glob_keyword_TFIDF |= set(short_keywords_tfidf)
     	glob_files_TFIDF.add(paper)                                                                         
     	glob_keywords_file_TFIDF.update(short_kw_dict_tfidf)
     	#Makes the list of keywords       
     print("TF-IDF: %d" % (time.time() - start_time))
-
     
     file_tfidf = kw_out
     importance = int(math.sqrt(math.sqrt(len(processed_pages))))+1
     #Calculates the final list of important keywords based on the importance
-    [final_TFIDF, final_keywords_TFIDF] = merge_keywords(glob_files_TFIDF, glob_keyword_TFIDF, glob_keywords_file_TFIDF, importance)
+    [final_TFIDF, final_keywords_TFIDF] = merge_keywords(glob_files_TFIDF, glob_keyword_TFIDF, glob_keywords_file_TFIDF, importance, processed_pages)
 
     j=0
     distance_matrix =  [[1000 for n in xrange(len(final_keywords_TFIDF))] for k in xrange(len(final_keywords_TFIDF))]

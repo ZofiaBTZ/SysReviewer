@@ -22,27 +22,32 @@ except OSError as e:
     if e.errno != errno.EEXIST:
         raise
      
-
-output_pdf = "../../Output/" + output_name + "/output_pdf"             #Malawi"              #
-output_txt = "../../Output/" + output_name + "/output_txt"              # + output_name + "_txt"
-summary_file = "../../Output/" + output_name + "/summary_file.txt"      # + output_name + ".txt"
-keyphrases_file = "../../Output/" + output_name + "/kp_file.csv"        # + output_name + ".csv"
-keywords_file = "../../Output/" + output_name + "/short_kw_file.csv"    # + output_name + ".csv"
-textRank_file ="../../Output/" + output_name + "/textRank_file_.csv"    # + output_name + ".csv"
+output_name = "../../Output/" + output_name
+print(output_name)
+output_pdf = output_name + "/output_pdf"             
+output_txt = output_name + "/output_txt"             
+summary_file = output_name + "/summary_file.txt"      
+keyphrases_file = output_name + "/kp_prake_file.csv"                 
+keywords_file = output_name + "/kw_tfidf_file.csv"  
+textRank_file = output_name + "/kp_textRank_file_.csv"   
 last_page = 1                                                          #Put that to 1 if it's a new search
-print("Downloading papers...")
-parse(query, output_pdf, last_page)                 #paperity2pdf, downloads paperity papers
-print("Converting downloaded papers")
-convert(output_pdf, output_txt, summary_file)       #pdf2txt, transforms downloaded papers in txt
-print("Extractiong keyphrases")
-txt2keyphrases(output_txt, keyphrases_file)         #txt2key_phrases
-print("Extracting keywords")
-txt2tfidf(output_txt, keywords_file)                #txt2keywords_tfidf
-#txt2textRank(output_txt, textRank_file)
-print("Cooccurrence in downloaded papers")
-words_cooccurence(keywords_file)                    #words_cooccurence_downloaded
-print("Cooccurrence in paperity for comparison")
-words_cooccurence_paperity_f(keywords_file)         #words_cooccurence_paperity
+#print("Downloading papers...")
+#parse(query, output_pdf, last_page)                                     #paperity2pdf, downloads paperity papers
+#print("Converting downloaded papers")
+#convert(output_pdf, output_txt, summary_file)                           #pdf2txt, transforms downloaded papers in txt
+#print("Extractiong keyphrases")
+#txt2keyphrases(output_txt, keyphrases_file)                             #txt2key_phrases
+#print("Extracting keywords")
+#txt2tfidf(output_txt, keywords_file)                                    #txt2keywords_tfidf
+txt2textRank(output_txt, textRank_file, output_name)
+print("Cooccurrence in downloaded papers for keyphrases")
+words_cooccurence(textRank_file, output_name)                         #words_cooccurence_downloaded
+#print("Cooccurrence in downloaded papers for keywords")
+#words_cooccurence(keywords_file, output_name)                           #words_cooccurence_downloaded
+#print("Cooccurrence in paperity for keyphrases")
+#words_cooccurence_paperity_f(keyphrases_file, output_name)              #words_cooccurence_paperity
+#print("Cooccurrence in paperity for keywords")
+#words_cooccurence_paperity_f(keywords_file, output_name)                #words_cooccurence_paperity
 
 
 #python sysReview.py --author "" --keywords "HIV OR sex OR AIDS OR Malawi OR condom OR stigma OR antiretroviral OR virus OR HIV testing OR sexual risks OR safe sex OR epidemics OR prevention OR PCA OR contraception OR high risk sex OR treatment OR knowledge gap OR intimate partner violence OR clinic visit OR counselling OR risk factors OR tb diagnosis OR HIV status OR therapy OR social factors OR health seeking behaviour"
